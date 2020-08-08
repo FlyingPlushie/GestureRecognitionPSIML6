@@ -2,6 +2,7 @@
 
 # KARD DATA LOADER CONSTANTS
 # Different file types per repetition
+PATH = 'D:/datasets/KARD'
 FILETYPES = {'video': 'mp4',
             'depthmap': 'depthmaps.txt',
             'realworld': 'realworld.txt',

@@ -67,6 +67,7 @@ class KardDataLoader:
     def __init__(self, path):
         # Path to dataset on the system
         self.path = Path(path)
+        self.data = None
         
     def generateNameDigits(self, input_range):
         """Generate strings from 01 to input_range, including input_range.
@@ -86,7 +87,7 @@ class KardDataLoader:
 
         episode_data = []
         subject_data = []
-        activity_data = []
+        self.data = []
         
         for activity in activities:
             for subject in subjects:
@@ -103,10 +104,8 @@ class KardDataLoader:
                         episode_data.append(data)
                 subject_data.append(episode_data)
                 episode_data = []
-            activity_data.append(subject_data)
+            self.data.append(subject_data)
             subject_data = []
-        
-        return activity_data
 
     def getActivityData(self, filetype):
         """Reads the complete data tree, but drops the subjects for easier access:
@@ -118,8 +117,8 @@ class KardDataLoader:
         subjects = self.generateNameDigits(c.SUBJECTS)
         episodes = self.generateNameDigits(c.EPISODES)
 
+        self.data = []
         episode_data = []
-        activity_data = []
         
         for activity in activities:
             for subject in subjects:
@@ -133,33 +132,31 @@ class KardDataLoader:
                         #filenames.append(filename)
                         data = np.loadtxt(file_path)
                         episode_data.append(data)
-            activity_data.append(episode_data)
+            self.data.append(episode_data)
             episode_data = []
-        
-        return activity_data
 
 if __name__ == '__main__':
 # Tests
     path = 'D:/datasets/KARD'
     def getADTest():
-        ad = KardDataLoader(path)
-        data = ad.getActivityData(c.FILETYPES['screen'])
-        print(len(data)) # 18 activities
-        print(len(data[0])) # 30 episodes (no subjects)
-        print(len(data[0][0])) # 1290/15 frames with (u, v, depth)
+        kdl = KardDataLoader(path)
+        kdl.getActivityData(c.FILETYPES['screen'])
+        print(len(kdl.data)) # 18 activities
+        print(len(kdl.data[0])) # 30 episodes (no subjects)
+        print(len(kdl.data[0][0])) # 1290/15 frames with (u, v, depth)
 
     def getADTTest():
-        adt = KardDataLoader(path)
-        data = adt.getActivityDataTree(c.FILETYPES['screen'])
-        print(len(data))
-        print(len(data[0]))
-        print(len(data[0][0]))
-        print(data[0][0][0])
-        print(data[0][0][0][0][2])
+        kdl = KardDataLoader(path)
+        kdl.getActivityDataTree(c.FILETYPES['screen'])
+        print(len(kdl.data))
+        print(len(kdl.data[0]))
+        print(len(kdl.data[0][0]))
+        print(kdl.data[0][0][0])
+        print(kdl.data[0][0][0][0][2])
     
     kdl = KardDataLoader(path)
-    data = kdl.getActivityData(c.FILETYPES['screen'])
-    for activity in data:
+    kdl.getActivityData(c.FILETYPES['screen'])
+    for activity in kdl.data:
         for episode in activity:
             for frame in episode:
                 print(frame)
@@ -168,4 +165,6 @@ if __name__ == '__main__':
         break
     # Expected output: first row of the first file
     # [ 348.59357  119.53153 2687.6377 ]
+    #getADTTest()
+    #getADTest()
     
