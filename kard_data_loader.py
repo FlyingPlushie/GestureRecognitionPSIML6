@@ -61,125 +61,99 @@
 from pathlib import Path
 import os
 import numpy as np
+import consts as c
 
-# DATA CONSTS
-# Path to dataset on the system
-DATASET_PATH = Path('D:/datasets/KARD/')
-# Different file types per repetition
-FILETYPES = {'video': 'mp4',
-             'depthmap': 'depthmaps.txt',
-             'realworld': 'realworld.txt',
-             'screen': 'screen.txt'}
-# Activity labels from the set
-ACTIVITY_LABELS = ['hor_arm_wave',
-                   'high_arm_wave',
-                   'two_hand_wave',
-                   'catch_cap',
-                   'high_throw',
-                   'draw_x',
-                   'draw_tick',
-                   'toss_paper',
-                   'fwd_kick',
-                   'side_kick',
-                   'take_umbrella',
-                   'bend',
-                   'hand_clap',
-                   'walk',
-                   'phone_call',
-                   'drink',
-                   'sit_down',
-                   'stand_up']
-# Number of recorded activities
-ACTIVITIES = len(ACTIVITY_LABELS) # 'a' in filename
-# Total number of repetitions per subject
-EPISODES = 3 # 'e' in filename
-# Total number of subjects
-SUBJECTS = 10 # 's' in filename
+class KardDataLoader:
+    def __init__(self, path):
+        # Path to dataset on the system
+        self.path = Path(path)
+        
+    def generateNameDigits(self, input_range):
+        """Generate strings from 01 to input_range, including input_range.
+        Returns an iterator in case of a long list."""
+        return ['0' + str(i + 1) if i < 9 else str(i + 1) for i in range(input_range)]
 
-def generateNameDigits(input_range):
-    """Generate strings from 01 to input_range, including input_range.
-    Returns an iterator in case of a long list."""
-    return ['0' + str(i + 1) if i < 9 else str(i + 1) for i in range(input_range)]
+    def getActivityDataTree(self, filetype):
+        """Reads the complete data tree:
+        activities(18 total)
+        |_subjects(10 per activity)
+        |_episodes(3 per subject)"""
+        files = os.listdir(self.path)
+        filenames = []
+        activities = self.generateNameDigits(c.ACTIVITIES)
+        subjects = self.generateNameDigits(c.SUBJECTS)
+        episodes = self.generateNameDigits(c.EPISODES)
 
-
-
-def getActivityDataTree(path, filetype):
-    """Reads the complete data tree:
-    activities(18 total)
-    |_subjects(10 per activity)
-      |_episodes(3 per subject)"""
-    files = os.listdir(path)
-    filenames = []
-    activities = generateNameDigits(ACTIVITIES)
-    subjects = generateNameDigits(SUBJECTS)
-    episodes = generateNameDigits(EPISODES)
-
-    episode_data = []
-    subject_data = []
-    activity_data = []
-    
-    for activity in activities:
-        for subject in subjects:
-            for episode in episodes:
-                filename = 'a' + activity + '_' + \
-                           's' + subject + '_' + \
-                           'e' + episode + '_' + \
-                            filetype
-                if filename in files:
-                    file_path = Path(DATASET_PATH / filename)
-                    filenames.append(filename)
-                    #data_frame = pd.read_csv(file_path, header=None)
-                    data = np.loadtxt(file_path)
-                    episode_data.append(data)
-            subject_data.append(episode_data)
-            episode_data = []
-        activity_data.append(subject_data)
-        subject_data = []
-    
-    return activity_data
-
-def getADTTest():
-    adt = getActivityDataTree(DATASET_PATH, FILETYPES['screen'])
-    print(len(adt))
-    print(len(adt[0]))
-    print(len(adt[0][0]))
-    print(adt[0][0][0])
-    print(adt[0][0][0][0][2])
-
-def getActivityData(path, filetype):
-    """Reads the complete data tree, but drops the subjects for easier access:
-    activities(18 total)
-      |_episodes(30 per activity)"""
-    files = os.listdir(path)
-    filenames = []
-    activities = generateNameDigits(ACTIVITIES)
-    subjects = generateNameDigits(SUBJECTS)
-    episodes = generateNameDigits(EPISODES)
-
-    episode_data = []
-    activity_data = []
-    
-    for activity in activities:
-        for subject in subjects:
-            for episode in episodes:
-                filename = 'a' + activity + '_' + \
-                           's' + subject + '_' + \
-                           'e' + episode + '_' + \
-                            filetype
-                if filename in files:
-                    file_path = Path(DATASET_PATH / filename)
-                    #filenames.append(filename)
-                    data = np.loadtxt(file_path)
-                    episode_data.append(data)
-        activity_data.append(episode_data)
         episode_data = []
+        subject_data = []
+        activity_data = []
+        
+        for activity in activities:
+            for subject in subjects:
+                for episode in episodes:
+                    filename = 'a' + activity + '_' + \
+                            's' + subject + '_' + \
+                            'e' + episode + '_' + \
+                                filetype
+                    if filename in files:
+                        file_path = Path(self.path / filename)
+                        filenames.append(filename)
+                        #data_frame = pd.read_csv(file_path, header=None)
+                        data = np.loadtxt(file_path)
+                        episode_data.append(data)
+                subject_data.append(episode_data)
+                episode_data = []
+            activity_data.append(subject_data)
+            subject_data = []
+        
+        return activity_data
+
+    def getActivityData(self, filetype):
+        """Reads the complete data tree, but drops the subjects for easier access:
+        activities(18 total)
+        |_episodes(30 per activity)"""
+        files = os.listdir(self.path)
+        filenames = []
+        activities = self.generateNameDigits(c.ACTIVITIES)
+        subjects = self.generateNameDigits(c.SUBJECTS)
+        episodes = self.generateNameDigits(c.EPISODES)
+
+        episode_data = []
+        activity_data = []
+        
+        for activity in activities:
+            for subject in subjects:
+                for episode in episodes:
+                    filename = 'a' + activity + '_' + \
+                            's' + subject + '_' + \
+                            'e' + episode + '_' + \
+                                filetype
+                    if filename in files:
+                        file_path = Path(self.path / filename)
+                        #filenames.append(filename)
+                        data = np.loadtxt(file_path)
+                        episode_data.append(data)
+            activity_data.append(episode_data)
+            episode_data = []
+        
+        return activity_data
+
+if __name__ == '__main__':
+# Tests
+    def getADTest():
+        ad = KardDataLoader('D:/datasets/KARD')
+        data = ad.getActivityData(c.FILETYPES['screen'])
+        print(len(data)) # 18 activities
+        print(len(data[0])) # 30 episodes (no subjects)
+        print(len(data[0][0])) # 1290/15 frames with (u, v, depth)
+
+    def getADTTest():
+        adt = KardDataLoader('D:/datasets/KARD')
+        data = adt.getActivityDataTree(c.FILETYPES['screen'])
+        print(len(data))
+        print(len(data[0]))
+        print(len(data[0][0]))
+        print(data[0][0][0])
+        print(data[0][0][0][0][2])
     
-    return activity_data
-
-def getADTest():
-    ad = getActivityData(DATASET_PATH, FILETYPES['screen'])
-    print(len(ad)) # 18 activities
-    print(len(ad[0])) # 30 episodes (no subjects)
-    print(len(ad[0][0])) # 1290/15 frames with (u, v, depth)
-
-#getADTest()
+    getADTest()
