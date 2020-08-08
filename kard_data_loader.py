@@ -140,15 +140,16 @@ class KardDataLoader:
 
 if __name__ == '__main__':
 # Tests
+    path = 'D:/datasets/KARD'
     def getADTest():
-        ad = KardDataLoader('D:/datasets/KARD')
+        ad = KardDataLoader(path)
         data = ad.getActivityData(c.FILETYPES['screen'])
         print(len(data)) # 18 activities
         print(len(data[0])) # 30 episodes (no subjects)
         print(len(data[0][0])) # 1290/15 frames with (u, v, depth)
 
     def getADTTest():
-        adt = KardDataLoader('D:/datasets/KARD')
+        adt = KardDataLoader(path)
         data = adt.getActivityDataTree(c.FILETYPES['screen'])
         print(len(data))
         print(len(data[0]))
@@ -156,4 +157,15 @@ if __name__ == '__main__':
         print(data[0][0][0])
         print(data[0][0][0][0][2])
     
-    getADTest()
+    kdl = KardDataLoader(path)
+    data = kdl.getActivityData(c.FILETYPES['screen'])
+    for activity in data:
+        for episode in activity:
+            for frame in episode:
+                print(frame)
+                break
+            break
+        break
+    # Expected output: first row of the first file
+    # [ 348.59357  119.53153 2687.6377 ]
+    
