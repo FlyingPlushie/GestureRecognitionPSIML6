@@ -137,7 +137,7 @@ class KardDataLoader:
 
 if __name__ == '__main__':
 # Tests
-    path = 'D:/datasets/KARD'
+    path = 'C:\\Users\\bozam\\Desktop\\KARD_all_in_ine_folder'
     def getADTest():
         kdl = KardDataLoader(path)
         kdl.getActivityData(c.FILETYPES['screen'])
@@ -156,6 +156,7 @@ if __name__ == '__main__':
     
     kdl = KardDataLoader(path)
     kdl.getActivityData(c.FILETYPES['screen'])
+    
     for activity in kdl.data:
         for episode in activity:
             for frame in episode:
@@ -165,6 +166,8 @@ if __name__ == '__main__':
         break
     # Expected output: first row of the first file
     # [ 348.59357  119.53153 2687.6377 ]
-    #getADTTest()
-    #getADTest()
+    # getADTTest()
+    # getADTest()
+
+    #print(kdl.data)
     
