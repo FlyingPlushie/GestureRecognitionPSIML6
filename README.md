@@ -29,6 +29,3 @@ Best of luck!
 FlyingPlushie
 29.8.2020.
 ---
-
-# Necessary libraries
-[xmltodict](https://pypi.org/project/xmltodict/)
